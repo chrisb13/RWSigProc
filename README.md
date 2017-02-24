@@ -25,7 +25,8 @@ Usage
 This package can be used by importing it, see examples.
 
 ## Examples
-1. See examples/
+1. See  RWSigProc/examples/paviso.py (requires xarray and pandas)
+
 
 Acknowledgements
 ================
