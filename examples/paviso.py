@@ -53,6 +53,8 @@ if __name__ == "__main__":
     df=\
     pd.DataFrame(data,index=[pd.to_datetime(d) for d in ifile['time'][:].values] )
 
+    df=df-df.mean()
+
     ###########################################################################
     #                      Do a 2D rectangular filter...                      #
     ###########################################################################
@@ -62,20 +64,27 @@ if __name__ == "__main__":
     plt.close('all')
     row=1
     col=2
+
+    
     fig, axis = plt.subplots(\
-        nrows=row, ncols=col, sharex=False, sharey=False,\
+        nrows=row, ncols=col, sharex=False, sharey=False,figsize=(5.5*col,10),\
         gridspec_kw={'hspace':.225,'wspace':.065}\
               )
     
     ax=axis[0]
-    ax.contourf(df.columns,df.index,df.values,cmap=ccmap,extend='both')
+    ax.grid(True)
+    ax.contourf(df.columns,df.index,df.values,levels=levs,cmap=ccmap,extend='both')
     rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    ax=axis[1]
+    rwsp.pl_inset_title_box(ax,'raw',bwidth="20%",location=1)
 
+    ax=axis[1]
+    ax.grid(True)
     size=11
     f=sc.array(sc.ones([size,size])/size**2)
     zf=nd.convolve(df.values,f)
-    cs1=ax.contourf(df.columns,df.index,zf,cmap=ccmap,extend='both')
+    cs1=ax.contourf(df.columns,df.index,zf,levels=levs,cmap=ccmap,extend='both')
+    rwsp.pl_inset_title_box(ax,'box filter',bwidth="40%",location=1)
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
     plt.setp(ax.get_yticklabels(),visible=False)
 
     fig.colorbar(cs1, ax=axis.ravel().tolist(), pad=0.02, aspect = 30)
@@ -84,9 +93,38 @@ if __name__ == "__main__":
     lg.info("Plot created: "+pout+'example_sqfilt_aviso.png')
     # plt.show()
 
+    ###########################################################################
+    #                          Do a sombrero filter                           #
+    ###########################################################################
+
+    plt.close('all')
+    row=1
+    col=2
+
+    fig, axis = plt.subplots(\
+        nrows=row, ncols=col, sharex=False, sharey=False,figsize=(5.5*col,10),\
+        gridspec_kw={'hspace':.225,'wspace':.065}\
+              )
     
+    ax=axis[0]
+    ax.grid(True)
+    ax.contourf(df.columns,df.index,df.values,levels=levs,cmap=ccmap,extend='both')
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
+    rwsp.pl_inset_title_box(ax,'raw',bwidth="20%",location=1)
 
+    ax=axis[1]
+    ax.grid(True)
+    f=rwsp.sombrero(11,11,-1000,365.25,sigma=2)
+    zf=nd.convolve(df.values,f)
+    cs1=ax.contourf(df.columns,df.index,zf,levels=levs,cmap=ccmap,extend='both')
+    rwsp.pl_inset_title_box(ax,'sombrero filter',bwidth="40%",location=1)
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
+    plt.setp(ax.get_yticklabels(),visible=False)
 
+    fig.colorbar(cs1, ax=axis.ravel().tolist(), pad=0.02, aspect = 30)
+
+    fig.savefig(pout+'example_sombrero_aviso.png',dpi=300,bbox_inches='tight')
+    lg.info("Plot created: "+pout+'example_sombrero_aviso.png')
 
     lg.info('')
     localtime = time.asctime( time.localtime(time.time()) )

@@ -13,10 +13,10 @@
 """
 Filter module file
 """
-
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from mpl_toolkits.axes_grid.inset_locator import inset_axes
 
 def pl_inset_title_box(ax,title,bwidth="20%",location=1):
     """
