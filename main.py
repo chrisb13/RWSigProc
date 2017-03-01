@@ -123,7 +123,24 @@ class change_tick_labels_add_dirs(object):
                 ylab.append(str(int(lat)))
         self.axes.set_yticklabels(ylab)
         return
-        
+
+def maxvar(a,b):
+    """  function maxvar(a,b) maximizes the amplitude of b in relation to a 
+    by least-squares fit, such that (a-g*b) has the least variance """
+    
+    # g=(b(:)'*b(:))\(b(:)'*a(:));
+    b = b.flatten(1)
+    nb = b.size
+    brow = b.reshape(1,nb)
+    bcol = b.reshape(nb,1)
+    a = a.flatten(1)
+    na = a.size
+    arow = a.reshape(1,na)
+    acol = a.reshape(na,1)
+    c = np.matmul(brow,bcol)
+    d = np.matmul(brow,acol)
+    g = np.linalg.solve(c,d)
+    return g[0,0]
 
 def sombrero(v,h,L,T,sigma=2):
     """produces a sombrero-like shaped matrix z, used for FIR filtering
