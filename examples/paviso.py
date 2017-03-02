@@ -37,6 +37,28 @@ sys.path.insert(1,os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpa
 import RWSigProc as rwsp
 
 
+def phelp(pltaxis,x,y,ptitle,parray,plevels,pccmap,yoff=True):
+    """little function to do some of the repetitive plotting tasks
+    
+    :pltaxis: plt axis
+    :x: domain vector
+    :y: codomain vector
+    :ptitle: title in a box for the plot
+    :parray: array to plot
+    :returns: @todo
+    """
+    pltaxis.grid(True)
+    cs1=pltaxis.contourf(x,y,parray,levels=levs,cmap=ccmap,extend='both')
+
+    #make more yticks
+    start, end = pltaxis.get_ylim()
+    pltaxis.yaxis.set_ticks(np.arange(start, end, 365)) #days in a year
+    rwsp.pl_inset_title_box(pltaxis,ptitle,bwidth="50%",location=1)
+    if yoff:
+        plt.setp(pltaxis.get_yticklabels(),visible=False)
+    rwsp.change_tick_labels_add_dirs(pltaxis,xyonly='x')
+    return cs1
+
 if __name__ == "__main__": 
     LogStart('',fout=False)
     pout=curdir+'example_aviso_plots/'
@@ -62,8 +84,8 @@ if __name__ == "__main__":
     #                      Do a 2D rectangular filter...                      #
     ###########################################################################
 
-    ccmap='seismic'
-    levs=np.linspace(-0.3,0.3,30)
+    # ccmap='seismic'
+    # levs=np.linspace(-0.3,0.3,30)
     # plt.close('all')
     # row=1
     # col=2
@@ -100,6 +122,9 @@ if __name__ == "__main__":
     #                          Do a sombrero filter                           #
     ###########################################################################
 
+    ccmap='seismic'
+    levs=np.linspace(-0.3,0.3,30)
+
     plt.close('all')
     row=1
     col=8
@@ -110,10 +135,7 @@ if __name__ == "__main__":
               )
     
     ax=axis[0]
-    ax.grid(True)
-    ax.contourf(df.columns,df.index,df.values,levels=levs,cmap=ccmap,extend='both')
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    rwsp.pl_inset_title_box(ax,'raw',bwidth="20%",location=1)
+    phelp(ax,df.columns,df.index,'Raw',df.values,levs,ccmap,yoff=False)
 
     # this block is for the annual signal, non-propagating, lambda gigantic
 
@@ -183,56 +205,21 @@ if __name__ == "__main__":
     lg.info("Residual signal zrem explains "+str(round(pvr,3))+"% of variance.")
 
 
-    ax=axis[1]
-    ax.grid(True)
-    cs1=ax.contourf(df.columns,df.index,za,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'Annual signal',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[1],df.columns,df.index,'Annual ('+str(round(pva,1))+'%)',za,levs,ccmap,yoff=True)
 
-    ax=axis[2]
-    ax.grid(True)
-    cs2=ax.contourf(df.columns,df.index,zr1,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'12mo Rossby',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[2],df.columns,df.index,'12mo Rossby ('+str(round(pvr1,1))+'%)',zr1,levs,ccmap,yoff=True)
 
-    ax=axis[3]
-    ax.grid(True)
-    cs3=ax.contourf(df.columns,df.index,zr2,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'6mo Rossby',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[3],df.columns,df.index,'6mo Rossby ('+str(round(pvr2,1))+'%)',zr2,levs,ccmap,yoff=True)
 
-    ax=axis[4]
-    ax.grid(True)
-    cs4=ax.contourf(df.columns,df.index,zr3,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'3mo Rossby',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[4],df.columns,df.index,'3mo Rossby ('+str(round(pvr3,1))+'%)',zr3,levs,ccmap,yoff=True)
 
-    ax=axis[5]
-    ax.grid(True)
-    cs5=ax.contourf(df.columns,df.index,zr4,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'24mo Rossby',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[5],df.columns,df.index,'24mo Rossby ('+str(round(pvr4,1))+'%)',zr4,levs,ccmap,yoff=True)
 
-    ax=axis[6]
-    ax.grid(True)
-    cs6=ax.contourf(df.columns,df.index,zg,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'Large scale',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    phelp(axis[6],df.columns,df.index,'Large scale ('+str(round(pvg,1))+'%)',zg,levs,ccmap,yoff=True)
 
-    ax=axis[7]
-    ax.grid(True)
-    cs7=ax.contourf(df.columns,df.index,zrem,levels=levs,cmap=ccmap,extend='both')
-    rwsp.pl_inset_title_box(ax,'Unexplained',bwidth="40%",location=1)
-    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
-    plt.setp(ax.get_yticklabels(),visible=False)
+    cs1=phelp(axis[7],df.columns,df.index,'Unexplained ('+str(round(pvr,1))+'%)',zrem,levs,ccmap,yoff=True)
 
-    fig.colorbar(cs1, ax=axis.ravel().tolist(), pad=0.02, aspect = 30)
+    fig.colorbar(cs1, ax=axis.ravel().tolist(), pad=0.005, aspect = 40)
 
     fig.savefig(pout+'example_sombrero_aviso.png',dpi=150,bbox_inches='tight')
     lg.info("Plot created: "+pout+'example_sombrero_aviso.png')
