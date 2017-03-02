@@ -205,6 +205,32 @@ def sombrero(v,h,L,T,sigma=2):
     z=z/sa
     return z
 
+def gauss(m, n, sigma=2):
+    """produces a gaussian shaped matrix z, used for FIR filtering    
+    :m: rows
+    :n: columns
+
+    Notes
+    -------
+    Try and make v and h odd numbers!
+    
+    :returns: array that is m rows by n columns
+    """
+    s=sigma  #% s controls the value at the borders
+    x,y=np.meshgrid(np.arange(0.5,n+0.5,1),np.arange(0.5,m+0.5,1))
+    x=(np.pi*(x-m/2)/(m*s))**2
+    y=(np.pi*(y-n/2)/(n*s))**2
+    g=np.exp(-0.5*(x**2+y**2)) / (np.sqrt(2*np.pi) * s)
+    g=g-g.min()
+    g=g/g.max()
+    return g
+
+def pvar(z,zp):
+    # calculate percent of variance of z that zp explains 
+    pv = ((np.var(z)-np.var(z-zp))/np.var(z))*100.
+    return pv
+
+
 if __name__ == "__main__": 
     #LogStart('',fout=False)
     from _cblogger import _LogStart

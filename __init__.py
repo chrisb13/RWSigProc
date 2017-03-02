@@ -16,4 +16,5 @@ This package is for filtering Rossby Waves
 __version__=.1
 #__all__=[]
 
-from .main import sombrero,change_tick_labels_add_dirs,pl_inset_title_box,mkdir,maxvar
+from .main import sombrero,change_tick_labels_add_dirs,pl_inset_title_box,mkdir,maxvar,gauss,pvar
+

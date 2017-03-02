@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     plt.close('all')
     row=1
-    col=5
+    col=8
 
     fig, axis = plt.subplots(\
         nrows=row, ncols=col, sharex=False, sharey=False,figsize=(5.5*col,10),\
@@ -125,6 +125,9 @@ if __name__ == "__main__":
     # the next dominant signal out of the remainder (zrem)
     zrem = df.values-za
 
+    pva = rwsp.pvar(df.values,za)
+    lg.info("Annual signal za explains "+str(round(pva,3))+"% of variance.")
+
     # this block is for the annual Rossby waves,
 
     fr1 = rwsp.sombrero(365,61,-60.,365.25,sigma=2)
@@ -132,6 +135,8 @@ if __name__ == "__main__":
     zr1 = zr1*rwsp.maxvar(zrem,zr1)
 
     zrem = zrem-zr1
+    pvr1 = rwsp.pvar(df.values,zr1)
+    lg.info("Annual RW zr1 explains "+str(round(pvr1,3))+"% of variance.")
 
     # this block is for semiannual Rossby waves
 
@@ -140,7 +145,43 @@ if __name__ == "__main__":
     zr2 = zr2*rwsp.maxvar(zrem,zr2)
 
     zrem = zrem-zr2
- 
+    pvr2 = rwsp.pvar(df.values,zr2)
+    lg.info("Semi-annual RW zr2 explains "+str(round(pvr2,3))+"% of variance.")
+
+    # this block is for trimestral Rossby waves
+
+    fr3 = rwsp.sombrero(91,15,-15.,91.,sigma=2)
+    zr3 = sig.fftconvolve(zrem,fr3,mode='same')
+    zr3 = zr3*rwsp.maxvar(zrem,zr3)
+
+    zrem = zrem-zr3
+    pvr3 = rwsp.pvar(df.values,zr3)
+    lg.info("Trimestral RW zr3 explains "+str(round(pvr3,3))+"% of variance.")
+
+    # this block is for biannual Rossby waves
+
+    fr4 = rwsp.sombrero(731,121,-121.,731.,sigma=2)
+    zr4 = sig.fftconvolve(zrem,fr4,mode='same')
+    zr4 = zr4*rwsp.maxvar(zrem,zr4)
+
+    zrem = zrem-zr4
+    pvr4 = rwsp.pvar(df.values,zr4)
+    lg.info("Bi-annual RW zr4 explains "+str(round(pvr4,3))+"% of variance.")
+
+    # this block is for gigantic scale signals
+
+    fg = rwsp.gauss(731,241,sigma=2)
+    zg = sig.fftconvolve(zrem,fg,mode='same')
+    zg = zg*rwsp.maxvar(zrem,zg)
+
+    zrem = zrem-zg
+    pvg = rwsp.pvar(df.values,zg)
+    lg.info("Large scale signal zg explains "+str(round(pvg,3))+"% of variance.")
+
+
+    pvr = rwsp.pvar(df.values,zrem)
+    lg.info("Residual signal zrem explains "+str(round(pvr,3))+"% of variance.")
+
 
     ax=axis[1]
     ax.grid(True)
@@ -165,14 +206,35 @@ if __name__ == "__main__":
 
     ax=axis[4]
     ax.grid(True)
-    cs4=ax.contourf(df.columns,df.index,zrem,levels=levs,cmap=ccmap,extend='both')
+    cs4=ax.contourf(df.columns,df.index,zr3,levels=levs,cmap=ccmap,extend='both')
+    rwsp.pl_inset_title_box(ax,'3mo Rossby',bwidth="40%",location=1)
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
+    plt.setp(ax.get_yticklabels(),visible=False)
+
+    ax=axis[5]
+    ax.grid(True)
+    cs5=ax.contourf(df.columns,df.index,zr4,levels=levs,cmap=ccmap,extend='both')
+    rwsp.pl_inset_title_box(ax,'24mo Rossby',bwidth="40%",location=1)
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
+    plt.setp(ax.get_yticklabels(),visible=False)
+
+    ax=axis[6]
+    ax.grid(True)
+    cs6=ax.contourf(df.columns,df.index,zg,levels=levs,cmap=ccmap,extend='both')
+    rwsp.pl_inset_title_box(ax,'Large scale',bwidth="40%",location=1)
+    rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
+    plt.setp(ax.get_yticklabels(),visible=False)
+
+    ax=axis[7]
+    ax.grid(True)
+    cs7=ax.contourf(df.columns,df.index,zrem,levels=levs,cmap=ccmap,extend='both')
     rwsp.pl_inset_title_box(ax,'Unexplained',bwidth="40%",location=1)
     rwsp.change_tick_labels_add_dirs(ax,xyonly='x')
     plt.setp(ax.get_yticklabels(),visible=False)
 
     fig.colorbar(cs1, ax=axis.ravel().tolist(), pad=0.02, aspect = 30)
 
-    fig.savefig(pout+'example_sombrero_aviso.png',dpi=300,bbox_inches='tight')
+    fig.savefig(pout+'example_sombrero_aviso.png',dpi=150,bbox_inches='tight')
     lg.info("Plot created: "+pout+'example_sombrero_aviso.png')
 
     lg.info('')
